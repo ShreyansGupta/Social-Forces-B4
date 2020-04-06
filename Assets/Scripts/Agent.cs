@@ -15,6 +15,7 @@ public class Agent : MonoBehaviour
     private Rigidbody rb;
 
     private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
+    private HashSet<GameObject> collidedNeighbors = new HashSet<GameObject>();
 
     void Start()
     {
@@ -87,6 +88,31 @@ public class Agent : MonoBehaviour
         return rb.velocity;
     }
 
+    private Vector3 GetProximityForce()
+    {
+        var totalProximityForce = new Vector3();
+        totalProximityForce = Vector3.zero;
+
+        foreach (var agt in perceivedNeighbors)
+        {
+            //Need to confirm?
+            //Pyschological Force
+            var sumRadii = radius+agt.GetComponent<NavMeshAgent>().radius;
+            var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
+            var exp = Mathf.Exp((sumRadii - com) / Parameters.B);
+            totalProximityForce += (Parameters.A * exp)*((transform.position-agt.transform.position).normalized);
+
+            //Penetration Force
+            if (collidedNeighbors.Contains(agt))
+            {
+                totalProximityForce+=(Parameters.k)*(sumRadii-com) * ((transform.position - agt.transform.position).normalized);
+            }
+
+            //Sliding forces to add
+        }
+        return totalProximityForce;
+    }
+
     #endregion
 
     #region Incomplete Functions
@@ -106,11 +132,18 @@ public class Agent : MonoBehaviour
     
     private Vector3 CalculateGoalForce()
     {
-        return Vector3.zero;
+        var desiredDirect = (path[0] - transform.position);
+        /*What should be the desired Speed?*/
+        //var desiredSpeed = 10.0f;
+        var desiredVel = desiredDirect.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
+        var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
+
+        return mass*calculateAcc;
     }
 
     private Vector3 CalculateAgentForce()
     {
+        //Proximity + 
         return Vector3.zero;
     }
 
@@ -129,22 +162,27 @@ public class Agent : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-
+        if (AgentManager.agentsObjs.ContainsKey(other.gameObject)) {
+            perceivedNeighbors.Add(other.gameObject);
+        }
     }
     
     public void OnTriggerExit(Collider other)
     {
-
+        if (perceivedNeighbors.Contains(other.gameObject))
+        {
+            perceivedNeighbors.Remove(other.gameObject);
+        }
     }
 
     public void OnCollisionEnter(Collision collision)
     {
-        
+        collidedNeighbors.Add(collision.gameObject);
     }
 
     public void OnCollisionExit(Collision collision)
     {
-        
+        collidedNeighbors.Remove(collision.gameObject);
     }
 
     #endregion
