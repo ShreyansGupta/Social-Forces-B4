@@ -88,28 +88,27 @@ public class Agent : MonoBehaviour
         return rb.velocity;
     }
 
-    private Vector3 GetProximityForce()
+    private Vector3 GetProximityForce(GameObject agt)
     {
         var totalProximityForce = new Vector3();
         totalProximityForce = Vector3.zero;
+        //Need to confirm?
+        //Pyschological Force
+        var sumRadii = radius + agt.GetComponent<NavMeshAgent>().radius;
+        var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
+        var exp = Mathf.Exp((sumRadii - com) / Parameters.B);
+        totalProximityForce += (Parameters.A * exp) * ((transform.position - agt.transform.position).normalized);
 
-        foreach (var agt in perceivedNeighbors)
-        {
-            //Need to confirm?
-            //Pyschological Force
-            var sumRadii = radius+agt.GetComponent<NavMeshAgent>().radius;
-            var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
-            var exp = Mathf.Exp((sumRadii - com) / Parameters.B);
-            totalProximityForce += (Parameters.A * exp)*((transform.position-agt.transform.position).normalized);
+        //Penetration Force
+        if (collidedNeighbors.Contains(agt))
+         {
+           totalProximityForce += (Parameters.k) * (sumRadii - com) * ((transform.position - agt.transform.position).normalized);
+          }
 
-            //Penetration Force
-            if (collidedNeighbors.Contains(agt))
-            {
-                totalProximityForce+=(Parameters.k)*(sumRadii-com) * ((transform.position - agt.transform.position).normalized);
-            }
-
-            //Sliding forces to add
-        }
+        //Sliding forces to add
+        //totalProximityForce+=Parameters.Kappa*(sumRadii-com)*
+            
+        
         return totalProximityForce;
     }
 
@@ -143,13 +142,47 @@ public class Agent : MonoBehaviour
 
     private Vector3 CalculateAgentForce()
     {
-        //Proximity + 
-        return Vector3.zero;
+        var agentForce = new Vector3();
+        agentForce = Vector3.zero;
+        
+        foreach (var agt in perceivedNeighbors)
+        {
+            if (AgentManager.IsAgent(agt))
+            {
+                agentForce += GetProximityForce(agt);
+            }
+            else
+            {
+                agentForce += CalculateWallForce(agt);
+            }
+        }
+            return agentForce;
     }
 
-    private Vector3 CalculateWallForce()
+    private Vector3 CalculateWallForce(GameObject agt)
     {
-        return Vector3.zero;
+        var wallForce = Vector3.zero;
+        var com = (rb.centerOfMass - agt.transform.position).magnitude;
+        var exp = Mathf.Exp((radius - com) / Parameters.B);
+        wallForce += (Parameters.A * exp) * (transform.position - agt.transform.position); //Direction?
+
+        if (collidedNeighbors.Contains(agt))
+        {
+            if ((radius - com) > 0)
+            {
+                /*var pt=agt.GetComponent<Collision>().contacts[0];
+               var dir=pt.normal;*/
+                wallForce += (Parameters.k * (radius - com)) * (transform.position - agt.transform.position);
+               
+                //Should direction be normal to wall?
+
+            //wallForce-=(Parameters.Kappa)*(radius-com)
+            }
+        }
+
+        //Sliding force
+
+        return wallForce;
     }
 
     public void ApplyForce()
@@ -162,9 +195,9 @@ public class Agent : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if (AgentManager.agentsObjs.ContainsKey(other.gameObject)) {
-            perceivedNeighbors.Add(other.gameObject);
-        }
+       
+       perceivedNeighbors.Add(other.gameObject);
+       
     }
     
     public void OnTriggerExit(Collider other)
@@ -182,7 +215,8 @@ public class Agent : MonoBehaviour
 
     public void OnCollisionExit(Collision collision)
     {
-        collidedNeighbors.Remove(collision.gameObject);
+        if (collidedNeighbors.Contains(collision.gameObject))
+            collidedNeighbors.Remove(collision.gameObject);
     }
 
     #endregion
