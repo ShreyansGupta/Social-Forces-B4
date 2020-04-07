@@ -88,29 +88,7 @@ public class Agent : MonoBehaviour
         return rb.velocity;
     }
 
-    private Vector3 GetProximityForce(GameObject agt)
-    {
-        var totalProximityForce = new Vector3();
-        totalProximityForce = Vector3.zero;
-        //Need to confirm?
-        //Pyschological Force
-        var sumRadii = radius + agt.GetComponent<NavMeshAgent>().radius;
-        var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
-        var exp = Mathf.Exp((sumRadii - com) / Parameters.B);
-        totalProximityForce += (Parameters.A * exp) * ((transform.position - agt.transform.position).normalized);
-
-        //Penetration Force
-        if (collidedNeighbors.Contains(agt))
-         {
-           totalProximityForce += (Parameters.k) * (sumRadii - com) * ((transform.position - agt.transform.position).normalized);
-          }
-
-        //Sliding forces to add
-        //totalProximityForce+=Parameters.Kappa*(sumRadii-com)*
-            
-        
-        return totalProximityForce;
-    }
+    
 
     #endregion
 
@@ -119,6 +97,19 @@ public class Agent : MonoBehaviour
     private Vector3 ComputeForce()
     {
         var force = Vector3.zero;
+        force += CalculateGoalForce();
+
+        foreach (var obj in perceivedNeighbors)
+        {
+            if (AgentManager.IsAgent(obj))
+            {
+                force += CalculateAgentForce(obj);
+            }
+            else
+            {
+                force += CalculateWallForce(obj);
+            }
+        }
 
         if (force != Vector3.zero)
         {
@@ -140,39 +131,45 @@ public class Agent : MonoBehaviour
         return mass*calculateAcc;
     }
 
-    private Vector3 CalculateAgentForce()
+    private Vector3 CalculateAgentForce(GameObject agt)
     {
         var agentForce = new Vector3();
         agentForce = Vector3.zero;
-        
-        foreach (var agt in perceivedNeighbors)
-        {
-            if (AgentManager.IsAgent(agt))
-            {
-                agentForce += GetProximityForce(agt);
-            }
-            else
-            {
-                agentForce += CalculateWallForce(agt);
-            }
-        }
-            return agentForce;
-    }
+                
+        //Need to confirm?
+        //Pyschological Force
+        var sumRadii = radius + agt.GetComponent<NavMeshAgent>().radius;
+        var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
+        var exp = Mathf.Exp((sumRadii - com) / Parameters.B);
+        agentForce += (Parameters.A * exp) * ((transform.position - agt.transform.position).normalized);
 
-    private Vector3 CalculateWallForce(GameObject agt)
+        //Penetration Force
+        if (collidedNeighbors.Contains(agt))
+        {
+            agentForce += (Parameters.k) * (sumRadii - com) * ((transform.position - agt.transform.position).normalized);
+        }
+
+        //Sliding forces to add
+        //totalProximityForce+=Parameters.Kappa*(sumRadii-com)*
+        
+        return agentForce;
+
+        }
+
+    private Vector3 CalculateWallForce(GameObject wall)
     {
         var wallForce = Vector3.zero;
-        var com = (rb.centerOfMass - agt.transform.position).magnitude;
+        var com = (rb.centerOfMass - wall.transform.position).magnitude;
         var exp = Mathf.Exp((radius - com) / Parameters.B);
-        wallForce += (Parameters.A * exp) * (transform.position - agt.transform.position); //Direction?
+        wallForce += (Parameters.A * exp) * (transform.position - wall.transform.position); //Direction?
 
-        if (collidedNeighbors.Contains(agt))
+        if (collidedNeighbors.Contains(wall))
         {
             if ((radius - com) > 0)
             {
                 /*var pt=agt.GetComponent<Collision>().contacts[0];
                var dir=pt.normal;*/
-                wallForce += (Parameters.k * (radius - com)) * (transform.position - agt.transform.position);
+                wallForce += (Parameters.k * (radius - com)) * (transform.position - wall.transform.position);
                
                 //Should direction be normal to wall?
 
