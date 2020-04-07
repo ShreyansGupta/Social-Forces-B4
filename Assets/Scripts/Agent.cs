@@ -124,7 +124,6 @@ public class Agent : MonoBehaviour
     {
         var desiredDirect = (path[0] - transform.position);
         /*What should be the desired Speed?*/
-        //var desiredSpeed = 10.0f;
         var desiredVel = desiredDirect.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
         var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
 
@@ -170,10 +169,10 @@ public class Agent : MonoBehaviour
                 /*var pt=agt.GetComponent<Collision>().contacts[0];
                var dir=pt.normal;*/
                 wallForce += (Parameters.k * (radius - com)) * (transform.position - wall.transform.position);
-               
-                //Should direction be normal to wall?
 
-            //wallForce-=(Parameters.Kappa)*(radius-com)
+                //Should direction be normal to wall?
+                //Wall	normal	=	position	–	obstaclecenter.pos
+                //wallForce-=(Parameters.Kappa)*(radius-com)
             }
         }
 
