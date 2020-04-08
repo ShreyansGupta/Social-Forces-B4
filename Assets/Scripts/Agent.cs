@@ -122,9 +122,9 @@ public class Agent : MonoBehaviour
     
     private Vector3 CalculateGoalForce()
     {
-        var desiredDirect = (path[0] - transform.position);
+        var desiredVel = (path[0] - transform.position);
         /*What should be the desired Speed?*/
-        var desiredVel = desiredDirect.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
+       // var desiredVel = desiredDirect.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
         var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
 
         return mass*calculateAcc;
@@ -135,7 +135,6 @@ public class Agent : MonoBehaviour
         var agentForce = new Vector3();
         agentForce = Vector3.zero;
                 
-        //Need to confirm?
         //Pyschological Force
         var sumRadii = radius + agt.GetComponent<NavMeshAgent>().radius;
         var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
@@ -166,8 +165,8 @@ public class Agent : MonoBehaviour
         {
             if ((radius - com) > 0)
             {
-                /*var pt=agt.GetComponent<Collision>().contacts[0];
-               var dir=pt.normal;*/
+                var pt = wall.GetComponent<Collision>().contacts[0];
+                var dir = pt.normal;
                 wallForce += (Parameters.k * (radius - com)) * (transform.position - wall.transform.position);
 
                 //Should direction be normal to wall?
