@@ -51,7 +51,7 @@ public class AgentManager : MonoBehaviour
     void Update()
     {
         #region Visualization
-        
+
         if (Input.GetMouseButtonDown(0))
         {
             if (true)
@@ -62,8 +62,10 @@ public class AgentManager : MonoBehaviour
                 if (Physics.Raycast(point, dir, out rcHit))
                 {
                     point = rcHit.point;
+                    
                 }
-            } else
+            }
+            else
             {
                 var randPos = new Vector3((Random.value - 0.5f) * agentSpawnRadius, 0, (Random.value - 0.5f) * agentSpawnRadius);
 
@@ -76,8 +78,19 @@ public class AgentManager : MonoBehaviour
                     //agent.ComputePath(hit.position);
                 }
             }
-        }
+            /*RaycastHit hitInfo = new RaycastHit();
+            bool hit1 = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo);
+            if (hit1)
+            {
 
+                if (hitInfo.transform.gameObject.transform.parent == null)
+                    return;
+                else if ((AgentManager.IsAgent(hitInfo.transform.gameObject)))
+                {
+                    destination = hitInfo.point;
+                }
+            }*/
+        }
 #if UNITY_EDITOR
         if (Application.isFocused)
         {

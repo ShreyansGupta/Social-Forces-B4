@@ -122,9 +122,13 @@ public class Agent : MonoBehaviour
     
     private Vector3 CalculateGoalForce()
     {
+        if (path.Count == 0)
+        {
+            return Vector3.zero;
+        }
         var desiredVel = (path[0] - transform.position);
-        /*What should be the desired Speed?*/
-       // var desiredVel = desiredDirect.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
+        
+       // var desiredVel = desiredVel.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
         var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
 
         return mass*calculateAcc;
@@ -132,23 +136,24 @@ public class Agent : MonoBehaviour
 
     private Vector3 CalculateAgentForce(GameObject agt)
     {
-        var agentForce = new Vector3();
-        agentForce = Vector3.zero;
-                
+        
+        var agentForce = Vector3.zero;
+        var direction = (transform.position - agt.transform.position);
         //Pyschological Force
         var sumRadii = radius + agt.GetComponent<NavMeshAgent>().radius;
         var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
         var exp = Mathf.Exp((sumRadii - com) / Parameters.B);
-        agentForce += (Parameters.A * exp) * ((transform.position - agt.transform.position).normalized);
+        agentForce += (Parameters.A * exp) * (direction.normalized);
 
         //Penetration Force
         if (collidedNeighbors.Contains(agt))
         {
-            agentForce += (Parameters.k) * (sumRadii - com) * ((transform.position - agt.transform.position).normalized);
+            agentForce += (Parameters.k) * (sumRadii - com) * (direction.normalized);
         }
 
         //Sliding forces to add
-        //totalProximityForce+=Parameters.Kappa*(sumRadii-com)*
+        var tangent = Vector3.Cross(Vector3.up, direction.normalized);
+        agentForce+=Parameters.Kappa*(sumRadii-com)*Vector3.Dot((rb.velocity-agt.GetComponent<Rigidbody>().velocity),tangent)*tangent;
         
         return agentForce;
 
@@ -157,26 +162,43 @@ public class Agent : MonoBehaviour
     private Vector3 CalculateWallForce(GameObject wall)
     {
         var wallForce = Vector3.zero;
-        var com = (rb.centerOfMass - wall.transform.position).magnitude;
-        var exp = Mathf.Exp((radius - com) / Parameters.B);
-        wallForce += (Parameters.A * exp) * (transform.position - wall.transform.position); //Direction?
-
-        if (collidedNeighbors.Contains(wall))
+        var normal = transform.position - wall.transform.position;
+        normal.y = 0;
+        if (Mathf.Abs(normal.x) > Mathf.Abs(normal.z))
         {
-            if ((radius - com) > 0)
-            {
-                var pt = wall.GetComponent<Collision>().contacts[0];
-                var dir = pt.normal;
-                wallForce += (Parameters.k * (radius - com)) * (transform.position - wall.transform.position);
+            normal.z = 0;
+        }
+        else
+        {
+            normal.x = 0;
+        }
+        normal = normal.normalized;
 
-                //Should direction be normal to wall?
-                //Wall	normal	=	position	–	obstaclecenter.pos
-                //wallForce-=(Parameters.Kappa)*(radius-com)
+        var dir = transform.position - wall.transform.position;
+        dir.y = 0;
+        var projection = Vector3.Project(dir, normal);
+
+        //var com = (rb.centerOfMass - wall.transform.position).magnitude;
+        var exponent = Mathf.Exp(((radius+0.5f) - projection.magnitude) / Parameters.WALL_B);
+        wallForce += (Parameters.WALL_A * exponent) * normal; //Direction?
+
+        
+       if (collidedNeighbors.Contains(wall))
+        {
+            if (((radius + 0.5f) - projection.magnitude) > 0)
+            {
+                /*var pt = wall.GetComponent<Collision>().contacts[0];
+                var dir = pt.normal;
+                dir.y=0;
+                dir.normalized;*/
+                wallForce += (Parameters.WALL_k * ((radius + 0.5f) - projection.magnitude)) * normal;
+
+
+                //sliding force
+                var tangent = Vector3.Cross(Vector3.up, dir);
+                wallForce -= Parameters.WALL_Kappa * ((radius + 0.5f) - projection.magnitude) * Vector3.Dot(rb.velocity, tangent) * tangent;
             }
         }
-
-        //Sliding force
-
         return wallForce;
     }
 

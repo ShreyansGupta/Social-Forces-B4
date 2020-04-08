@@ -13,7 +13,7 @@ public class CameraController : MonoBehaviour
     float scroll = 0.5f;
     void Start()
     {
-        _agm = new AgentManager();
+        
     }
 
     // Update is called once per frame
