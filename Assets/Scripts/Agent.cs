@@ -98,7 +98,7 @@ public class Agent : MonoBehaviour
     private Vector3 ComputeForce()
     {
         var force = Vector3.zero;
-        force += CalculateGoalForce();
+        force += CalculateGoalForce() * 5.0f;
 
         foreach (var obj in perceivedNeighbors)
         {
@@ -109,7 +109,7 @@ public class Agent : MonoBehaviour
             else
             {
 
-                force += CalculateWallForce(obj);
+                force += CalculateWallForce(obj)*0.001f;
             }
         }
         

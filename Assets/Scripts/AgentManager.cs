@@ -37,9 +37,9 @@ public class AgentManager : MonoBehaviour
             agent.name = "Agent " + i;
             agent.transform.parent = agentParent.transform;
             var agentScript = agent.GetComponent<Agent>();
-            agentScript.radius = 0.5f;// Random.Range(0.2f, 0.6f);
+            agentScript.radius = 0.3f;// Random.Range(0.2f, 0.6f);
             agentScript.mass = 1;
-            agentScript.perceptionRadius = 5;
+            agentScript.perceptionRadius = 3;
 
             agents.Add(agentScript);
             agentsObjs.Add(agent, agentScript);
@@ -111,7 +111,7 @@ public class AgentManager : MonoBehaviour
         {
             if (iterations % PATHFINDING_FRAME_SKIP == 0)
             {
-                SetAgentDestinations(destination);
+                // SetAgentDestinations(destination);
             }
 
             foreach (var agent in agents)

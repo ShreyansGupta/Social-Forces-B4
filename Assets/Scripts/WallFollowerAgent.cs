@@ -220,9 +220,9 @@ public class WallFollowerAgent : MonoBehaviour
 
         if (colliding)
         {
-            Debug.DrawRay(hit.point, Vector3.up*5, Color.red);
+            Debug.DrawRay(hit.point, Vector3.up * 5, Color.red);
             Debug.DrawRay(hit.point, hit.normal * 5, Color.yellow);
-            Debug.DrawRay(pos, force * 10, Color.white);
+            Debug.DrawRay(pos, force * 5, Color.white);
         }
         wallForce += force;
 
@@ -246,7 +246,7 @@ public class WallFollowerAgent : MonoBehaviour
 
         //var com = (rb.centerOfMass - wall.transform.position).magnitude;
         var exponent = Mathf.Exp(((radius+0.5f) - projection.magnitude) / Parameters.WALL_B);
-        wallForce += (Parameters.WALL_A * exponent) * normal; //Direction?
+        wallForce += (Parameters.WALL_A * 0.001f * exponent) * normal; //Direction?
 
         // penetration force, same as before.
        if (collidedNeighbors.Contains(wall))
@@ -258,12 +258,12 @@ public class WallFollowerAgent : MonoBehaviour
                 var dir = pt.normal;
                 dir.y=0;
                 dir.normalized;*/
-                wallForce += (Parameters.WALL_k * ((radius + 0.5f) - projection.magnitude)) * normal;
+                wallForce += (Parameters.WALL_k * 0.001f * ((radius + 0.5f) - projection.magnitude)) * normal;
 
 
                 //sliding force
                 var tangent = Vector3.Cross(Vector3.up, dir);
-                wallForce -= Parameters.WALL_Kappa * ((radius + 0.5f) - projection.magnitude) * Vector3.Dot(rb.velocity, tangent) * tangent;
+                wallForce -= Parameters.WALL_Kappa *  0.001f * ((radius + 0.5f) - projection.magnitude) * Vector3.Dot(rb.velocity, tangent) * tangent;
             }
         }
         //Debug.Log("Wall" + 0.01f*wallForce);
