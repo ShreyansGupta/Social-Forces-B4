@@ -97,22 +97,24 @@ public class Agent : MonoBehaviour
     private Vector3 ComputeForce()
     {
         var force = Vector3.zero;
-        force += CalculateGoalForce();
+        force += CalculateGoalForce()*5.0f;
 
         foreach (var obj in perceivedNeighbors)
         {
             if (AgentManager.IsAgent(obj))
             {
-                force += CalculateAgentForce(obj);
+                force += CalculateAgentForce(obj)*0.01f;
             }
             else
             {
-                force += CalculateWallForce(obj);
+
+                force += CalculateWallForce(obj)*0.001f;
             }
         }
 
         if (force != Vector3.zero)
         {
+            force.y = 0;
             return force.normalized * Mathf.Min(force.magnitude, Parameters.maxSpeed);
         } else
         {
@@ -120,17 +122,18 @@ public class Agent : MonoBehaviour
         }
     }
     
-    private Vector3 CalculateGoalForce()
+    private Vector3 CalculateGoalForce(float maxSpeed=5)
     {
         if (path.Count == 0)
         {
             return Vector3.zero;
         }
-        var desiredVel = (path[0] - transform.position);
+        var desiredDirect = (path[0] - transform.position);
         
-       // var desiredVel = desiredVel.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
-        var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
-
+        var desiredVel = desiredDirect.normalized * Mathf.Min(desiredDirect.magnitude, maxSpeed);
+        var calculateAcc = (desiredVel - GetVelocity())/Parameters.T;
+        //Debug.Log("Goal" + 5*mass * calculateAcc);
+        Debug.DrawLine(transform.position,calculateAcc.normalized,Color.red);
         return mass*calculateAcc;
     }
 
@@ -154,7 +157,7 @@ public class Agent : MonoBehaviour
         //Sliding forces to add
         var tangent = Vector3.Cross(Vector3.up, direction.normalized);
         agentForce+=Parameters.Kappa*(sumRadii-com)*Vector3.Dot((rb.velocity-agt.GetComponent<Rigidbody>().velocity),tangent)*tangent;
-        
+        //Debug.Log("Agent" + 0.1f*agentForce);
         return agentForce;
 
         }
@@ -185,6 +188,7 @@ public class Agent : MonoBehaviour
         
        if (collidedNeighbors.Contains(wall))
         {
+            Debug.Log("Collided with wall");
             if (((radius + 0.5f) - projection.magnitude) > 0)
             {
                 /*var pt = wall.GetComponent<Collision>().contacts[0];
@@ -199,6 +203,7 @@ public class Agent : MonoBehaviour
                 wallForce -= Parameters.WALL_Kappa * ((radius + 0.5f) - projection.magnitude) * Vector3.Dot(rb.velocity, tangent) * tangent;
             }
         }
+        //Debug.Log("Wall" + 0.01f*wallForce);
         return wallForce;
     }
 

@@ -54,6 +54,7 @@ public class AgentManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log("Mouse clicked");
             if (true)
             {
                 var point = Camera.main.ScreenToWorldPoint(Input.mousePosition + Vector3.forward * 10);
@@ -78,18 +79,19 @@ public class AgentManager : MonoBehaviour
                     //agent.ComputePath(hit.position);
                 }
             }
-            /*RaycastHit hitInfo = new RaycastHit();
+            RaycastHit hitInfo = new RaycastHit();
             bool hit1 = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo);
             if (hit1)
             {
 
-                if (hitInfo.transform.gameObject.transform.parent == null)
+                /*if (hitInfo.transform.gameObject.transform.parent == null)
                     return;
                 else if ((AgentManager.IsAgent(hitInfo.transform.gameObject)))
-                {
+                {*/
                     destination = hitInfo.point;
-                }
-            }*/
+                    SetAgentDestinations(destination);
+                //}
+            }
         }
 #if UNITY_EDITOR
         if (Application.isFocused)
@@ -109,7 +111,7 @@ public class AgentManager : MonoBehaviour
         {
             if (iterations % PATHFINDING_FRAME_SKIP == 0)
             {
-                SetAgentDestinations(destination);
+                //SetAgentDestinations(destination);
             }
 
             foreach (var agent in agents)
@@ -144,6 +146,7 @@ public class AgentManager : MonoBehaviour
         {
             agent.ComputePath(hit.position);
         }
+        Debug.Log("Destination is set");
     }
 
     public static void RemoveAgent(GameObject obj)
