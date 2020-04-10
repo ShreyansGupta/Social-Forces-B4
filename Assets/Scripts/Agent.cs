@@ -38,7 +38,6 @@ public class Agent : MonoBehaviour
 
     public void Update()
     {
-        Debug.Log(path.Count);
         if (path.Count > 1 && Vector3.Distance(transform.position, path[0]) < 1.1f)
         {
             path.RemoveAt(0);
