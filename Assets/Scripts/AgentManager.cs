@@ -13,7 +13,7 @@ public class AgentManager : MonoBehaviour
 
     private static List<Agent> agents = new List<Agent>();
     private GameObject agentParent;
-    private Vector3 destination;
+    private Vector3 destination = new Vector3(13f, 1f, 12f);
 
     public const float UPDATE_RATE = 0.0f;
     private const int PATHFINDING_FRAME_SKIP = 25;
@@ -111,7 +111,7 @@ public class AgentManager : MonoBehaviour
         {
             if (iterations % PATHFINDING_FRAME_SKIP == 0)
             {
-                //SetAgentDestinations(destination);
+                // SetAgentDestinations(destination);
             }
 
             foreach (var agent in agents)
