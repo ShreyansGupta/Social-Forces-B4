@@ -13,7 +13,7 @@ public class AgentManager : MonoBehaviour
 
     private static List<Agent> agents = new List<Agent>();
     private GameObject agentParent;
-    private Vector3 destination;
+    private Vector3 destination = new Vector3(13f, 1f, 12f);
 
     public const float UPDATE_RATE = 0.0f;
     private const int PATHFINDING_FRAME_SKIP = 25;
@@ -37,9 +37,9 @@ public class AgentManager : MonoBehaviour
             agent.name = "Agent " + i;
             agent.transform.parent = agentParent.transform;
             var agentScript = agent.GetComponent<Agent>();
-            agentScript.radius = 0.3f;// Random.Range(0.2f, 0.6f);
+            agentScript.radius = 0.5f;// Random.Range(0.2f, 0.6f);
             agentScript.mass = 1;
-            agentScript.perceptionRadius = 3;
+            agentScript.perceptionRadius = 5;
 
             agents.Add(agentScript);
             agentsObjs.Add(agent, agentScript);

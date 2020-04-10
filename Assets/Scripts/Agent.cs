@@ -13,11 +13,13 @@ public class Agent : MonoBehaviour
     private List<Vector3> path;
     private NavMeshAgent nma;
     private Rigidbody rb;
-
+    
     private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
     private HashSet<GameObject> collidedNeighbors = new HashSet<GameObject>();
 
-    void Start()
+    private string wallDir = "back";
+    
+    public void Start()
     {
         path = new List<Vector3>();
         nma = GetComponent<NavMeshAgent>();
@@ -27,14 +29,19 @@ public class Agent : MonoBehaviour
         nma.radius = radius;
         rb.mass = mass;
         GetComponent<SphereCollider>().radius = perceptionRadius / 2;
+        
+        // Only for wall follower
+        transform.position = new Vector3(-9f, 1.0f, -11f);
+        // path = new List<Vector3>();
+        // path.Add(new Vector3(12.0f, 1f, 12.0f));
     }
 
-    private void Update()
+    public void Update()
     {
         if (path.Count > 1 && Vector3.Distance(transform.position, path[0]) < 1.1f)
         {
             path.RemoveAt(0);
-        } else if (path.Count == 1 && Vector3.Distance(transform.position, path[0]) < 2f)
+        } else if (path.Count == 1 && Vector3.Distance(transform.position, path[0]) < 1.5f)
         {
             path.RemoveAt(0);
 
@@ -110,7 +117,7 @@ public class Agent : MonoBehaviour
                 force += CalculateWallForce(obj);
             }
         }
-
+        
         if (force != Vector3.zero)
         {
             return force.normalized * Mathf.Min(force.magnitude, Parameters.maxSpeed);
@@ -119,19 +126,20 @@ public class Agent : MonoBehaviour
             return Vector3.zero;
         }
     }
-    
-    private Vector3 CalculateGoalForce()
-    {
-        if (path.Count == 0)
-        {
-            return Vector3.zero;
-        }
-        var desiredVel = (path[0] - transform.position);
-        
-       // var desiredVel = desiredVel.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
-        var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
 
-        return mass*calculateAcc;
+    protected virtual Vector3 CalculateGoalForce()
+    {
+       //  if (path.Count == 0)
+       //  {
+       return Vector3.zero;
+       //  }
+       //  var desiredVel = (path[0] - transform.position);
+       //  
+       // // var desiredVel = desiredVel.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
+       //  var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
+       //
+       //  return mass*calculateAcc;
+       
     }
 
     private Vector3 CalculateAgentForce(GameObject agt)
@@ -162,6 +170,61 @@ public class Agent : MonoBehaviour
     private Vector3 CalculateWallForce(GameObject wall)
     {
         var wallForce = Vector3.zero;
+
+        if (wall.name == "Plane")
+        {
+            return wallForce;
+        }
+        
+        var pos = transform.position;
+        pos.y = 0f;
+
+        RaycastHit hit;
+        
+        var force = Vector3.zero;
+        bool colliding = false;
+
+        if (Physics.Raycast(pos, transform.right, out hit) && hit.transform.gameObject == wall) 
+        {
+            wallDir = "right";
+            colliding = true;
+            force = Vector3.Cross(Vector3.up, hit.normal);
+        }
+        else if (Physics.Raycast(pos, -transform.right, out hit) && hit.transform.gameObject == wall)
+        {
+            wallDir = "left";
+            colliding = true;
+            force = -Vector3.Cross(Vector3.up, hit.normal);
+
+        }
+        else if (Physics.Raycast(pos, transform.forward, out hit) && hit.transform.gameObject == wall)
+        {
+            // rotate either to right or left depending on if we have wall on left or right
+            // i.e. let's rotate in the direction of already applied force and add that force in the forward direction
+            // to get the ball rolling
+            colliding = true;
+            if (wallDir == "left")
+            {
+                force = -Vector3.Cross(Vector3.up, hit.normal);
+                transform.rotation = Quaternion.FromToRotation(transform.forward, transform.right) * transform.rotation;
+            }
+            else if (wallDir == "right")
+            {
+                force = Vector3.Cross(Vector3.up, hit.normal);
+                transform.rotation = Quaternion.FromToRotation(transform.forward, -transform.right) * transform.rotation;
+            }
+        }
+
+        if (colliding)
+        {
+            Debug.DrawRay(hit.point, Vector3.up*5, Color.red);
+            Debug.DrawRay(hit.point, hit.normal * 5, Color.yellow);
+            Debug.DrawRay(pos, force * 10, Color.white);
+        }
+        wallForce += force;
+
+        
+        // Normal force
         var normal = transform.position - wall.transform.position;
         normal.y = 0;
         if (Mathf.Abs(normal.x) > Mathf.Abs(normal.z))
@@ -180,9 +243,9 @@ public class Agent : MonoBehaviour
 
         //var com = (rb.centerOfMass - wall.transform.position).magnitude;
         var exponent = Mathf.Exp(((radius+0.5f) - projection.magnitude) / Parameters.WALL_B);
-        wallForce += (Parameters.WALL_A * exponent) * normal; //Direction?
+        // wallForce += (Parameters.WALL_A * exponent) * normal; //Direction?
 
-        
+        // penetration force, same as before.
        if (collidedNeighbors.Contains(wall))
         {
             if (((radius + 0.5f) - projection.magnitude) > 0)
@@ -206,7 +269,7 @@ public class Agent : MonoBehaviour
     {
         var force = ComputeForce();
         force.y = 0;
-
+        
         rb.AddForce(force * 10, ForceMode.Force);
     }
 
