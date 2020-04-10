@@ -5,4 +5,7 @@ Assets/Plugins/**
 Social-Forces-B4.sln
 Temp/
 Assembly-CSharp.csproj
-**.meta
+ #Ignore all .meta file
+ *.meta
+ #But not source file with postfix. which is everything but a folder
+ !*.*.meta
