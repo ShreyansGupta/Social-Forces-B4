@@ -38,6 +38,7 @@ public class Agent : MonoBehaviour
 
     public void Update()
     {
+        Debug.Log(path.Count);
         if (path.Count > 1 && Vector3.Distance(transform.position, path[0]) < 1.1f)
         {
             path.RemoveAt(0);
@@ -115,7 +116,7 @@ public class Agent : MonoBehaviour
             else
             {
 
-                force += CalculateWallForce(obj)*0.001f;
+                force += CalculateWallForce(obj);
             }
         }
         
@@ -245,7 +246,7 @@ public class Agent : MonoBehaviour
 
         //var com = (rb.centerOfMass - wall.transform.position).magnitude;
         var exponent = Mathf.Exp(((radius+0.5f) - projection.magnitude) / Parameters.WALL_B);
-        // wallForce += (Parameters.WALL_A * exponent) * normal; //Direction?
+        wallForce += (Parameters.WALL_A * exponent) * normal; //Direction?
 
         // penetration force, same as before.
        if (collidedNeighbors.Contains(wall))

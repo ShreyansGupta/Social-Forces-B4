@@ -111,7 +111,7 @@ public class AgentManager : MonoBehaviour
         {
             if (iterations % PATHFINDING_FRAME_SKIP == 0)
             {
-                //SetAgentDestinations(destination);
+                SetAgentDestinations(destination);
             }
 
             foreach (var agent in agents)
