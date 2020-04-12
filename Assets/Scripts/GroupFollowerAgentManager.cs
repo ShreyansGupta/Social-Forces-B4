@@ -113,7 +113,6 @@ public class GroupFollowerAgentManager : MonoBehaviour
         {
             if (iterations % PATHFINDING_FRAME_SKIP == 0)
             {
-                destination = new Vector3(3.7f, 0.1f, -14f);
                 SetAgentDestinations(destination);
             }
 
