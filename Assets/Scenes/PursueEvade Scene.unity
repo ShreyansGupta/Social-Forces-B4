@@ -770,7 +770,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agentCount: 8
   agentSpawnRadius: 20
-  agentPrefab: {fileID: 5631278990405910066, guid: 56f77a4dd20f2c8429126acdc1c44436,
+  agentPrefab: {fileID: 5631278990405910066, guid: 615ef56ca03918c42b931af43b1aed1c,
     type: 3}
   PursuerMaterial: {fileID: 2100000, guid: 3a97b43dd210e3d42a465ea50efe9106, type: 2}
   EvaderMaterial: {fileID: 2100000, guid: 0376456b0df5c5c45b1192a6e6afa929, type: 2}
