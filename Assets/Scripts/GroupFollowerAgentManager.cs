@@ -15,11 +15,9 @@ public class GroupFollowerAgentManager : MonoBehaviour
     private GameObject agentParent;
     private Vector3 destination = new Vector3(13f, 1f, 12f);
 
-    public const float UPDATE_RATE = 0.0f;
+    public const float UPDATE_RATE = 0.5f;
     private const int PATHFINDING_FRAME_SKIP = 25;
-    private Vector3 groupForce = Vector3.zero;
-    public float panicFactor = 0.4f;
-
+    
     #region Unity Functions
 
     void Awake()
@@ -59,30 +57,30 @@ public class GroupFollowerAgentManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Debug.Log("Mouse clicked");
-            if (true)
-            {
-                var point = Camera.main.ScreenToWorldPoint(Input.mousePosition + Vector3.forward * 10);
-                var dir = point - Camera.main.transform.position;
-                RaycastHit rcHit;
-                if (Physics.Raycast(point, dir, out rcHit))
-                {
-                    point = rcHit.point;
-                    
-                }
-            }
-            else
-            {
-                var randPos = new Vector3((Random.value - 0.5f) * agentSpawnRadius, 0, (Random.value - 0.5f) * agentSpawnRadius);
-
-                NavMeshHit hit;
-                NavMesh.SamplePosition(randPos, out hit, 1.0f, NavMesh.AllAreas);
-                print(hit.position);
-                Debug.DrawLine(hit.position, hit.position + Vector3.up * 10, Color.red, 1000000);
-                foreach (var agent in agents)
-                {
-                    //agent.ComputePath(hit.position);
-                }
-            }
+            // if (true)
+            // {
+            //     var point = Camera.main.ScreenToWorldPoint(Input.mousePosition + Vector3.forward * 10);
+            //     var dir = point - Camera.main.transform.position;
+            //     RaycastHit rcHit;
+            //     if (Physics.Raycast(point, dir, out rcHit))
+            //     {
+            //         point = rcHit.point;
+            //         
+            //     }
+            // }
+            // else
+            // {
+            //     var randPos = new Vector3((Random.value - 0.5f) * agentSpawnRadius, 0, (Random.value - 0.5f) * agentSpawnRadius);
+            //
+            //     NavMeshHit hit;
+            //     NavMesh.SamplePosition(randPos, out hit, 1.0f, NavMesh.AllAreas);
+            //     print(hit.position);
+            //     Debug.DrawLine(hit.position, hit.position + Vector3.up * 10, Color.red, 1000000);
+            //     foreach (var agent in agents)
+            //     {
+            //         //agent.ComputePath(hit.position);
+            //     }
+            // }
             RaycastHit hitInfo = new RaycastHit();
             bool hit1 = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo);
             if (hit1)
@@ -115,16 +113,15 @@ public class GroupFollowerAgentManager : MonoBehaviour
         {
             if (iterations % PATHFINDING_FRAME_SKIP == 0)
             {
+                destination = new Vector3(3.7f, 0.1f, -14f);
                 SetAgentDestinations(destination);
             }
 
-            var nextGroupForce = Vector3.zero;
             foreach (var agent in agents)
             {
-                nextGroupForce += agent.ApplyForce(groupForce,panicFactor);
+                agent.ApplyForce();
             }
 
-            groupForce = nextGroupForce / agents.Count;
             if (UPDATE_RATE == 0)
             {
                 yield return null;
@@ -152,7 +149,7 @@ public class GroupFollowerAgentManager : MonoBehaviour
         {
             agent.ComputePath(hit.position);
         }
-        Debug.Log("Destination is set");
+        Debug.Log("Destination is set "+hit.position);
     }
 
     public static void RemoveAgent(GameObject obj)
