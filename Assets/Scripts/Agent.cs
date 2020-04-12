@@ -35,7 +35,7 @@ public class Agent : MonoBehaviour
         if (path.Count > 1 && Vector3.Distance(transform.position, path[0]) < 1.1f)
         {
             path.RemoveAt(0);
-        } else if (path.Count == 1 && Vector3.Distance(transform.position, path[0]) < 1.5f)
+        } else if (path.Count == 1 && Vector3.Distance(transform.position, path[0]) < 2f)
         {
             path.RemoveAt(0);
 
@@ -48,7 +48,7 @@ public class Agent : MonoBehaviour
 
         #region Visualization
 
-        if (false)
+        if (true)
         {
             if (path.Count > 0)
             {
@@ -98,17 +98,17 @@ public class Agent : MonoBehaviour
     private Vector3 ComputeForce()
     {
         var force = Vector3.zero;
-        force += CalculateGoalForce() * 5.0f;
+        force += CalculateGoalForce();
 
         foreach (var obj in perceivedNeighbors)
         {
             if (AgentManager.IsAgent(obj))
             {
-                force += CalculateAgentForce(obj)*0.01f;
+                force += CalculateAgentForce(obj)*0.001f;
             }
             else
             {
-
+                if (obj.gameObject.name == "Plane") continue;
                 force += CalculateWallForce(obj)*0.001f;
             }
         }
@@ -131,7 +131,7 @@ public class Agent : MonoBehaviour
        }
        var desiredVel = (path[0] - transform.position);
         
-       // var desiredVel = desiredVel.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
+       desiredVel = desiredVel.normalized * Mathf.Min(desiredVel.magnitude, Parameters.maxSpeed);
        var calculateAcc = (desiredVel - this.GetVelocity())/Parameters.T;
        
        return mass*calculateAcc;
@@ -140,28 +140,29 @@ public class Agent : MonoBehaviour
 
     private Vector3 CalculateAgentForce(GameObject agt)
     {
-        
         var agentForce = Vector3.zero;
         var direction = (transform.position - agt.transform.position);
         //Pyschological Force
         var sumRadii = radius + agt.GetComponent<NavMeshAgent>().radius;
-        var com = (this.rb.centerOfMass - agt.GetComponent<Rigidbody>().centerOfMass).magnitude;
-        var exp = Mathf.Exp((sumRadii - com) / Parameters.B);
+        
+        var com = Vector3.Distance(transform.position , agt.transform.position);
+        var overflow = sumRadii - com;
+        var exp = Mathf.Exp((overflow > 0f ? 1:0) / Parameters.B);
         agentForce += (Parameters.A * exp) * (direction.normalized);
-
+        
         //Penetration Force
         if (collidedNeighbors.Contains(agt))
         {
-            agentForce += (Parameters.k) * (sumRadii - com) * (direction.normalized);
+            // agentForce += (Parameters.k) * (overflow) * (direction.normalized);
+            agentForce += (Parameters.k) * (overflow > 0f ? 1:0) * (direction.normalized);
         }
 
         //Sliding forces to add
         var tangent = Vector3.Cross(Vector3.up, direction.normalized);
-        agentForce+=Parameters.Kappa*(sumRadii-com)*Vector3.Dot((rb.velocity-agt.GetComponent<Rigidbody>().velocity),tangent)*tangent;
-        //Debug.Log("Agent" + 0.1f*agentForce);
+        agentForce+=Parameters.Kappa*((overflow > 0f ? 1:0))*Vector3.Dot((rb.velocity-agt.GetComponent<Rigidbody>().velocity),tangent)*tangent;
         return agentForce;
 
-        }
+    }
 
     private Vector3 CalculateWallForce(GameObject wall)
     {
