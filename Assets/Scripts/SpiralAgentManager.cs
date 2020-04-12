@@ -118,8 +118,7 @@ public class SpiralAgentManager : MonoBehaviour
 
             foreach (var agent in agents)
             {
-                if (agent.isActiveAndEnabled)
-                    agent.ApplyForce();
+                agent.ApplyForce();
             }
 
             if (UPDATE_RATE == 0)

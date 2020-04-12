@@ -42,7 +42,7 @@ public class SpiralAgent : MonoBehaviour
             if (path.Count == 0)
             {
                 gameObject.SetActive(false);
-                AgentManager.RemoveAgent(gameObject);
+                SpiralAgentManager.RemoveAgent(gameObject);
             }
         }
 
@@ -100,7 +100,7 @@ public class SpiralAgent : MonoBehaviour
         var force = Vector3.zero;
         // var goalForce = CalculateGoalForce();
         // force += goalForce * 1.0f;
-        // Debug.Log(gameObject.name+ " goal force: "+goalForce* 1.0f);
+        // // Debug.Log(gameObject.name+ " goal force: "+goalForce* 1.0f);
         //
         // foreach (var obj in perceivedNeighbors)
         // {
@@ -137,6 +137,7 @@ public class SpiralAgent : MonoBehaviour
         }
     }
 
+    
     private Vector3 GrowingSpiralForce()
     {
         var spiralForce = Vector3.zero;
