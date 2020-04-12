@@ -765,7 +765,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1392653794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5043a976125f094ca03ad62e5aa1c9f, type: 3}
+  m_Script: {fileID: 11500000, guid: 59945e780385fb7429aa1adfda09259c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   agentCount: 8
@@ -773,8 +773,6 @@ MonoBehaviour:
   agentPrefab: {fileID: 5631278990405910066, guid: 56f77a4dd20f2c8429126acdc1c44436,
     type: 3}
   PursuerMaterial: {fileID: 2100000, guid: 3a97b43dd210e3d42a465ea50efe9106, type: 2}
-  EvaderMaterial: {fileID: 2100000, guid: 0376456b0df5c5c45b1192a6e6afa929, type: 2}
-  destination: {x: 0, y: 0, z: 0.1}
 --- !u!4 &1392653796
 Transform:
   m_ObjectHideFlags: 0
