@@ -14,9 +14,10 @@ public class Leader : MonoBehaviour
     private NavMeshAgent nma;
     private Rigidbody rb;
     private float leaderDist=1.5f;
+    private bool isCollidingLeader;
 
     private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
-
+    private HashSet<GameObject> collidedNeighbors = new HashSet<GameObject>();
 
     public void Start()
     {
@@ -28,7 +29,7 @@ public class Leader : MonoBehaviour
         nma.radius = radius;
         rb.mass = mass;
         GetComponent<SphereCollider>().radius = perceptionRadius / 2;
-
+        
     }
 
     public void Update()
@@ -100,11 +101,11 @@ public class Leader : MonoBehaviour
     {
         var force = Vector3.zero;
         var leader = LeaderManager.leader;
-        bool isLeader = int.Parse(name.Split(' ')[1]) == 1;
+        bool isLeader = int.Parse(name.Split(' ')[1]) == 0;
         if (isLeader)
         {
-            if (path.Count == 1 && Vector3.Distance(transform.position, path[0]) > 1.5f)
-                force += CalculateGoalForce()*0.01f;
+            if (path.Count>0 && Vector3.Distance(transform.position, path[0]) > 0.5f)
+                force += CalculateGoalForce()*3.5f;
             else
             {
                 this.rb.velocity = Vector3.zero;
@@ -112,12 +113,34 @@ public class Leader : MonoBehaviour
         }
         else
         {
-            if (Vector3.Distance(transform.position,leader.transform.position)>3.0f)
-                force += CalculateLeaderForce(leader);
+            if (isCollidingLeader)
+            {
+                //force += CalculateLeaderRepulsionForce(leader) * 5;
+                if (Mathf.Abs(transform.position.x)>Mathf.Abs(transform.position.z))
+                    transform.position = transform.position + Vector3.forward * 1.5f;
+                else
+                    transform.position = transform.position + new Vector3(1.5f,0,0);
+
+                
+            }
+            if (Vector3.Distance(transform.position, leader.transform.position) > 3.0f)
+            {
+                force += CalculateLeaderForce(leader)*2;
+                force = force * 0.1f;
+                
+            }
             else
             {
                 rb.velocity = Vector3.zero;
-                
+
+            }
+        }
+
+        foreach(var obj in collidedNeighbors)
+        {
+            if (obj.transform.parent!=null && obj.transform.parent.name == "Walls")
+            {
+                force += CalculateWallForce(obj)*0.01f;
             }
         }
         if (force != Vector3.zero)
@@ -138,38 +161,92 @@ public class Leader : MonoBehaviour
         }
         var desiredVel = (path[0] - transform.position);
 
-        // var desiredVel = desiredVel.normalized * Mathf.Min(desiredDirect.magnitude, Parameters.maxSpeed);
         var calculateAcc = (desiredVel - this.GetVelocity()) / Parameters.T;
-
+        //Debug.DrawRay(transform.position, calculateAcc, Color.yellow);
         return mass * calculateAcc;
 
     }
+
+    /*private Vector3 CalculateLeaderRepulsionForce(GameObject leader)
+    {
+        var agentForce = Vector3.zero;
+        var sumRadii = leader.GetComponent<Leader>().radius + this.radius;
+        var com = (leader.transform.position - transform.position);
+        var exp = Mathf.Exp((sumRadii - com.magnitude) / Parameters.B);
+        agentForce += (exp) * (com.normalized);
+        return agentForce;
+    }*/
         private Vector3 CalculateLeaderForce(GameObject leader)
     {
 
         var agentForce = Vector3.zero;
         var direction = (transform.position - leader.transform.position).normalized;
-        //agentForce -= (direction) * 0.5f;
-
+        
         var leaderVel = leader.GetComponent<Leader>().GetVelocity();
-        leaderVel = leaderVel.normalized * leaderDist;
+        leaderVel = leaderVel.normalized;
         var aheadPos = leader.transform.position + leaderVel;
-        var onWay = Vector3.Distance(aheadPos, transform.position) < 1.5f || Vector3.Distance(leader.transform.position, transform.position) < 1.5f;
-        if (onWay)
+        
+        var onWay = Vector3.Dot(leaderVel, direction);
+        if (Vector3.Distance(aheadPos, transform.position) < 3f)
         {
             Debug.Log("On the way");
-            transform.position = aheadPos + Vector3.forward*1.5f;
+            if (Mathf.Abs(transform.position.x) > Mathf.Abs(transform.position.z))
+                transform.position = transform.position + new Vector3(0, 0, 1.5f);
+            else
+                transform.position = transform.position + new Vector3(1.5f, 0, 0);
+            
+            //agentForce += (transform.position-aheadPos)*0.001f;
         }
-        //var direction = (transform.position - aheadPos).normalized;
-        //var tangent = Vector3.Cross(Vector3.up, direction).normalized;
-        agentForce -= (direction) * 0.1f;
-        //agentForce += tangent * 0.01f;
-
         
+        agentForce -= (direction);
+        //agentForce += tangent * 0.01f;
+          
 
         Debug.DrawRay(transform.position, agentForce, Color.red);
         return agentForce;
         
+    }
+
+    private Vector3 CalculateWallForce(GameObject wall)
+    {
+        var wallForce = Vector3.zero;
+
+        var normal = transform.position - wall.transform.position;
+        normal.y = 0;
+        if (Mathf.Abs(normal.x) > Mathf.Abs(normal.z))
+        {
+            normal.z = 0;
+        }
+        else
+        {
+            normal.x = 0;
+        }
+        normal = normal.normalized;
+
+        var dir = transform.position - wall.transform.position;
+        dir.y = 0;
+        var projection = Vector3.Project(dir, normal);
+
+        var exponent = Mathf.Exp(((radius + 0.5f) - projection.magnitude) / Parameters.WALL_B);
+        wallForce += (Parameters.WALL_A * exponent) * normal; //Direction?
+
+        // penetration force, same as before.
+        if (collidedNeighbors.Contains(wall))
+        {
+            Debug.Log("Collided with wall");
+            if (((radius + 0.5f) - projection.magnitude) > 0)
+            {
+               
+                wallForce += (Parameters.WALL_k * ((radius + 0.5f) - projection.magnitude)) * normal;
+
+
+                //sliding force
+                var tangent = Vector3.Cross(Vector3.up, dir);
+                wallForce -= Parameters.WALL_Kappa * ((radius + 0.5f) - projection.magnitude) * Vector3.Dot(rb.velocity, tangent) * tangent;
+            }
+        }
+       
+        return wallForce*0.1f;
     }
     public void ApplyForce()
     {
@@ -181,20 +258,32 @@ public class Leader : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if (LeaderManager.IsAgent(other.gameObject) && other.gameObject!=LeaderManager.leader)
+        if (LeaderManager.IsAgent(other.gameObject) && other.gameObject==LeaderManager.leader)
         {
+            isCollidingLeader = true;
             perceivedNeighbors.Add(other.gameObject);
         }
     }
 
     public void OnTriggerExit(Collider other)
     {
-        if (perceivedNeighbors.Contains(other.gameObject))
+        
+        if (perceivedNeighbors.Contains(other.gameObject) && other.gameObject==LeaderManager.leader)
         {
+            isCollidingLeader = false;
             perceivedNeighbors.Remove(other.gameObject);
         }
     }
+    public void OnCollisionEnter(Collision collision)
+    {
+        collidedNeighbors.Add(collision.gameObject);
+    }
 
-   
+    public void OnCollisionExit(Collision collision)
+    {
+        if (collidedNeighbors.Contains(collision.gameObject))
+            collidedNeighbors.Remove(collision.gameObject);
+    }
+
     #endregion
 }

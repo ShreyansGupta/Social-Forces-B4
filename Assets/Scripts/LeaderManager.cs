@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 public class LeaderManager : MonoBehaviour
 {
-    public int agentCount = 10;
+    public int agentCount = 1;
     public float agentSpawnRadius = 20;
     public GameObject agentPrefab;
     public static Dictionary<GameObject, Leader> agentsObjs = new Dictionary<GameObject, Leader>();
@@ -44,8 +44,8 @@ public class LeaderManager : MonoBehaviour
             var agentScript = agent.GetComponent<Leader>();
             agentScript.radius = 0.3f;// Random.Range(0.2f, 0.6f);
             agentScript.mass = 1;
-            agentScript.perceptionRadius = 20;
-            if (i == 1)
+            agentScript.perceptionRadius = 2;
+            if (i == 0)
             {
                 agent.GetComponent<MeshRenderer>().material = PursuerMaterial;
                 leader = agent;
