@@ -125,7 +125,7 @@ public class SpiralAgent : MonoBehaviour
         //     }
         // }
 
-        force = GrowingSpiralForce();
+        force = GrowingSpiralForce() * 10;
         
         if (force != Vector3.zero)
         {
