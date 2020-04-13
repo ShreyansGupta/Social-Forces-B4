@@ -522,7 +522,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!119 &753826190
 Projector:
   m_ObjectHideFlags: 0
@@ -770,7 +770,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agentCount: 8
   agentSpawnRadius: 20
-  agentPrefab: {fileID: 5631278990405910066, guid: 56f77a4dd20f2c8429126acdc1c44436,
+  agentPrefab: {fileID: 5631278990405910066, guid: 615ef56ca03918c42b931af43b1aed1c,
     type: 3}
   PursuerMaterial: {fileID: 2100000, guid: 3a97b43dd210e3d42a465ea50efe9106, type: 2}
   EvaderMaterial: {fileID: 2100000, guid: 0376456b0df5c5c45b1192a6e6afa929, type: 2}
