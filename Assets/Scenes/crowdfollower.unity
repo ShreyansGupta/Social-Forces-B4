@@ -5964,7 +5964,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentCount: 10
-  agentSpawnRadius: 40
+  agentSpawnRadius: 5
   agentPrefab: {fileID: 5631278990405910066, guid: 4861229aa3ae4d480a3094db1f4ac9af,
     type: 3}
 --- !u!114 &1231321498

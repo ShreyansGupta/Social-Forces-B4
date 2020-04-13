@@ -16,7 +16,7 @@ public class GroupFollowerAgent : MonoBehaviour
     private NavMeshAgent nma;
     private Rigidbody rb;
     private Vector3 prevGoalForce;
-    public float panicFactor = 0.9f;
+    public float panicFactor = 1f;
     private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
     private HashSet<GameObject> collidedNeighbors = new HashSet<GameObject>();
     
@@ -112,28 +112,28 @@ public class GroupFollowerAgent : MonoBehaviour
         var groupForce = Vector3.zero;
         foreach (var obj in perceivedNeighbors)
         {
-            Debug.Log("perceived: "+obj.name);
-            if (GroupFollowerAgentManager.IsAgent(obj))
-            {
-                // Debug.Log("perceived inside agent: "+obj.name);
-                var agentForce = CalculateAgentForce(obj);
-                force += agentForce*0.0001f;
-                Debug.Log(gameObject.name+" Agent force: "+agentForce * 0.01f);
-            }
-            else
-            {
-                if(obj.gameObject.name == "Plane") continue;
-                // Debug.Log("perceived inside wall: "+obj.name);
-            
-                // Debug.Log(gameObject.name+ " Trigger Collision with "+ obj.gameObject.name);
-                var wallForce = CalculateWallForce(obj);
-                force += wallForce*0.001f;
-                Debug.Log(gameObject.name+" Wall force: "+ wallForce * 0.001f);
-            }
-            // if (GroupFollowerAgentManager.IsAgent(obj)){ 
-            //     // Debug.Log(obj);
-            //     groupForce += obj.GetComponent<GroupFollowerAgent>().prevGoalForce;
+            // Debug.Log("perceived: "+obj.name);
+            // if (GroupFollowerAgentManager.IsAgent(obj))
+            // {
+            //     // Debug.Log("perceived inside agent: "+obj.name);
+            //     var agentForce = CalculateAgentForce(obj);
+            //     force += agentForce*0.0001f;
+            //     Debug.Log(gameObject.name+" Agent force: "+agentForce * 0.01f);
             // }
+            // else
+            // {
+            //     if(obj.gameObject.name == "Plane") continue;
+            //     // Debug.Log("perceived inside wall: "+obj.name);
+            //
+            //     // Debug.Log(gameObject.name+ " Trigger Collision with "+ obj.gameObject.name);
+            //     var wallForce = CalculateWallForce(obj);
+            //     force += wallForce*0.001f;
+            //     Debug.Log(gameObject.name+" Wall force: "+ wallForce * 0.001f);
+            // }
+            if (GroupFollowerAgentManager.IsAgent(obj)){ 
+                // Debug.Log(obj);
+                groupForce += obj.GetComponent<GroupFollowerAgent>().prevGoalForce;
+            }
         }
         if (groupForce != Vector3.zero) groupForce /= perceivedNeighbors.Count;
         // Debug.Log("groupforce :"+groupForce);

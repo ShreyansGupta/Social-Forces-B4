@@ -15,7 +15,7 @@ public class GroupFollowerAgentManager : MonoBehaviour
     private GameObject agentParent;
     private Vector3 destination = new Vector3(13f, 1f, 12f);
 
-    public const float UPDATE_RATE = 0.5f;
+    public const float UPDATE_RATE = 0.0f;
     private const int PATHFINDING_FRAME_SKIP = 25;
     
     #region Unity Functions
@@ -40,8 +40,8 @@ public class GroupFollowerAgentManager : MonoBehaviour
             agent.transform.parent = agentParent.transform;
             var agentScript = agent.GetComponent<GroupFollowerAgent>();
             agentScript.radius = 0.3f;// Random.Range(0.2f, 0.6f);
-            agentScript.mass = 1;
-            agentScript.perceptionRadius = 3;
+            agentScript.mass = 10;
+            agentScript.perceptionRadius = 10;
 
             agents.Add(agentScript);
             agentsObjs.Add(agent, agentScript);
@@ -113,7 +113,7 @@ public class GroupFollowerAgentManager : MonoBehaviour
         {
             if (iterations % PATHFINDING_FRAME_SKIP == 0)
             {
-                SetAgentDestinations(destination);
+                // SetAgentDestinations(destination);
             }
 
             foreach (var agent in agents)
