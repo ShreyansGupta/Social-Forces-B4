@@ -98,18 +98,18 @@ public class Agent : MonoBehaviour
     private Vector3 ComputeForce()
     {
         var force = Vector3.zero;
-        force += CalculateGoalForce();
+        force += CalculateGoalForce() * 3;
 
         foreach (var obj in perceivedNeighbors)
         {
             if (AgentManager.IsAgent(obj))
             {
-                force += CalculateAgentForce(obj)*0.001f;
+                force += CalculateAgentForce(obj)*0.000001f;
             }
             else
             {
                 if (obj.gameObject.name == "Plane") continue;
-                force += CalculateWallForce(obj)*0.001f;
+                force += CalculateWallForce(obj)*0.0001f;
             }
         }
         
@@ -154,7 +154,8 @@ public class Agent : MonoBehaviour
         if (collidedNeighbors.Contains(agt))
         {
             // agentForce += (Parameters.k) * (overflow) * (direction.normalized);
-            agentForce += (Parameters.k) * (overflow > 0f ? 1:0) * (direction.normalized);
+            agentForce += (Parameters.k) * (overflow > 0f ? 1:0) * (direction.normalized) * 0.001f;
+            Debug.Log("Pen Force");
         }
 
         //Sliding forces to add

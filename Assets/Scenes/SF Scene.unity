@@ -107,7 +107,7 @@ NavMeshSettings:
   m_BuildSettings:
     serializedVersion: 2
     agentTypeID: 0
-    agentRadius: 0.2
+    agentRadius: 0.5
     agentHeight: 2
     agentSlope: 45
     agentClimb: 0.4
@@ -115,7 +115,7 @@ NavMeshSettings:
     maxJumpAcrossDistance: 0
     minRegionArea: 2
     manualCellSize: 0
-    cellSize: 0.06666667
+    cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
@@ -5870,7 +5870,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f617c0ea9733b44b50c37923d5c7d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentCount: 20
+  agentCount: 40
   agentSpawnRadius: 30
   agentPrefab: {fileID: 5631278990405910066, guid: 56f77a4dd20f2c8429126acdc1c44436,
     type: 3}
