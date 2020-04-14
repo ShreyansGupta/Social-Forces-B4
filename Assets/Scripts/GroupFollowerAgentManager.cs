@@ -40,8 +40,8 @@ public class GroupFollowerAgentManager : MonoBehaviour
             agent.transform.parent = agentParent.transform;
             var agentScript = agent.GetComponent<GroupFollowerAgent>();
             agentScript.radius = 0.3f;// Random.Range(0.2f, 0.6f);
-            agentScript.mass = 10;
-            agentScript.perceptionRadius = 10;
+            agentScript.mass = 5;
+            agentScript.perceptionRadius = 20;
 
             agents.Add(agentScript);
             agentsObjs.Add(agent, agentScript);

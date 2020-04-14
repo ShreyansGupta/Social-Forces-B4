@@ -161,7 +161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38c688e4afc85c79f82566b83ff5b2c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 0
-  mass: 0
-  perceptionRadius: 0
-  panicFactor: 0.4
+  radius: 0.5
+  mass: 1
+  perceptionRadius: 5

@@ -16,12 +16,13 @@ public class GroupFollowerAgent : MonoBehaviour
     private NavMeshAgent nma;
     private Rigidbody rb;
     private Vector3 prevGoalForce;
-    public float panicFactor = 1f;
+    private float panicFactor = 0.7f;
     private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
     private HashSet<GameObject> collidedNeighbors = new HashSet<GameObject>();
     
     public void Start()
     {
+        Debug.unityLogger.logEnabled = false;
         path = new List<Vector3>();
         nma = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
@@ -99,7 +100,7 @@ public class GroupFollowerAgent : MonoBehaviour
 
     #endregion
 
-    #region Incomplete Functions
+        #region Incomplete Functions
 
     private Vector3 ComputeForce()
     {
@@ -122,30 +123,29 @@ public class GroupFollowerAgent : MonoBehaviour
             // }
             // else
             // {
-            //     if(obj.gameObject.name == "Plane") continue;
-            //     // Debug.Log("perceived inside wall: "+obj.name);
-            //
-            //     // Debug.Log(gameObject.name+ " Trigger Collision with "+ obj.gameObject.name);
-            //     var wallForce = CalculateWallForce(obj);
-            //     force += wallForce*0.001f;
-            //     Debug.Log(gameObject.name+" Wall force: "+ wallForce * 0.001f);
+            // if(obj.gameObject.name == "Plane") continue;
+            // Debug.Log("perceived inside wall: "+obj.name);
+            
+            // Debug.Log(gameObject.name+ " Trigger Collision with "+ obj.gameObject.name);
+            // var wallForce = CalculateWallForce(obj);
+            // force += wallForce*0.00001f;
+            // Debug.Log(gameObject.name+" Wall force: "+ wallForce * 0.001f);
             // }
             if (GroupFollowerAgentManager.IsAgent(obj)){ 
                 // Debug.Log(obj);
-                groupForce += obj.GetComponent<GroupFollowerAgent>().prevGoalForce;
+                // groupForce += obj.GetComponent<GroupFollowerAgent>().prevGoalForce;
+                groupForce += obj.GetComponent<GroupFollowerAgent>().GetVelocity();
             }
         }
         if (groupForce != Vector3.zero) groupForce /= perceivedNeighbors.Count;
         // Debug.Log("groupforce :"+groupForce);
         // force = GrowingSpiralForce();
-
+        // force - groupForce
         if (force != Vector3.zero)
         {
             if (groupForce != Vector3.zero)
             {
-                Debug.Log(gameObject.name + " force before: " + force);
                 force = (1 - panicFactor) * force + panicFactor * groupForce;
-                Debug.Log(gameObject.name + " force after: " + force);
                 force.y = 0;
                 return force.normalized * Mathf.Min(force.magnitude, Parameters.maxSpeed);
             }
@@ -276,7 +276,7 @@ public class GroupFollowerAgent : MonoBehaviour
         force.y = 0;
         force = force * 10;
         Debug.Log(gameObject.name+ " force: "+force);
-        rb.AddForce(force,ForceMode.Force);
+        rb.AddForce(mass * force,ForceMode.Force);
     }
 
     public void OnTriggerEnter(Collider other)
