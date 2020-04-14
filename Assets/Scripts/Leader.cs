@@ -117,9 +117,9 @@ public class Leader : MonoBehaviour
             {
                 //force += CalculateLeaderRepulsionForce(leader) * 5;
                 if (Mathf.Abs(transform.position.x)>Mathf.Abs(transform.position.z))
-                    transform.position = transform.position + Vector3.forward * 1.5f;
+                    transform.position = transform.position + new Vector3(0,0,0.1f) ;
                 else
-                    transform.position = transform.position + new Vector3(1.5f,0,0);
+                    transform.position = transform.position + new Vector3(0.1f,0,0);
 
                 
             }

@@ -54,7 +54,6 @@ public class AgentManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("Mouse clicked");
             if (true)
             {
                 var point = Camera.main.ScreenToWorldPoint(Input.mousePosition + Vector3.forward * 10);
@@ -146,7 +145,7 @@ public class AgentManager : MonoBehaviour
         {
             agent.ComputePath(hit.position);
         }
-        Debug.Log("Destination is set");
+        // Debug.Log("Destination is set");
     }
 
     public static void RemoveAgent(GameObject obj)
