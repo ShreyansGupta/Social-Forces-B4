@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5631278990405910076}
   - component: {fileID: 928107956113291040}
   - component: {fileID: 7565673218745731547}
-  - component: {fileID: 2528121722408895984}
+  - component: {fileID: 1929419579212673219}
   m_Layer: 0
   m_Name: LeaderPrefab
   m_TagString: Untagged
@@ -59,6 +59,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -70,6 +71,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -147,7 +149,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2528121722408895984
+--- !u!114 &1929419579212673219
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -156,7 +158,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5631278990405910066}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8ad3012afa8741429f904bfd490a7e1, type: 3}
+  m_Script: {fileID: 11500000, guid: b144590726ee02b21b14377999de6c7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 0.3

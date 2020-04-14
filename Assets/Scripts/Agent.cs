@@ -17,8 +17,10 @@ public class Agent : MonoBehaviour
     private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
     private HashSet<GameObject> collidedNeighbors = new HashSet<GameObject>();
     
+    
     public void Start()
     {
+        Debug.unityLogger.logEnabled = false;
         path = new List<Vector3>();
         nma = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
@@ -98,8 +100,10 @@ public class Agent : MonoBehaviour
     private Vector3 ComputeForce()
     {
         var force = Vector3.zero;
+        
+        // Comment below for Growing Spiral
         force += CalculateGoalForce() * 3;
-
+        
         foreach (var obj in perceivedNeighbors)
         {
             if (AgentManager.IsAgent(obj))
@@ -112,6 +116,11 @@ public class Agent : MonoBehaviour
                 force += CalculateWallForce(obj)*0.0001f;
             }
         }
+        // Comment until here
+
+            
+        // Uncomment below for growing Spiral
+        // force = GrowingSpiralForce();
         
         if (force != Vector3.zero)
         {
@@ -123,6 +132,18 @@ public class Agent : MonoBehaviour
         }
     }
 
+    private Vector3 GrowingSpiralForce()
+    {
+        var spiralForce = Vector3.zero;
+        var centerDirection = Vector3.zero - transform.position;
+        if (centerDirection.magnitude > 0)
+        {
+            spiralForce += Vector3.Cross(Vector3.up, centerDirection).normalized * 0.01f;
+            spiralForce += centerDirection.normalized * 0.005f;
+        }
+
+        return spiralForce;
+    }
     protected virtual Vector3 CalculateGoalForce()
     {
        if (path.Count == 0)
@@ -147,20 +168,20 @@ public class Agent : MonoBehaviour
         
         var com = Vector3.Distance(transform.position , agt.transform.position);
         var overflow = sumRadii - com;
-        var exp = Mathf.Exp((overflow > 0f ? 1:0) / Parameters.B);
+        var exp = Mathf.Exp(overflow  / Parameters.B);
         agentForce += (Parameters.A * exp) * (direction.normalized);
         
         //Penetration Force
         if (collidedNeighbors.Contains(agt))
         {
             // agentForce += (Parameters.k) * (overflow) * (direction.normalized);
-            agentForce += (Parameters.k) * (overflow > 0f ? 1:0) * (direction.normalized) * 0.001f;
+            agentForce += (Parameters.k) * overflow  * (direction.normalized) * 0.001f;
             Debug.Log("Pen Force");
         }
 
         //Sliding forces to add
         var tangent = Vector3.Cross(Vector3.up, direction.normalized);
-        agentForce+=Parameters.Kappa*((overflow > 0f ? 1:0))*Vector3.Dot((rb.velocity-agt.GetComponent<Rigidbody>().velocity),tangent)*tangent;
+        agentForce+=Parameters.Kappa*(overflow )*Vector3.Dot((rb.velocity-agt.GetComponent<Rigidbody>().velocity),tangent)*tangent;
         return agentForce;
 
     }
